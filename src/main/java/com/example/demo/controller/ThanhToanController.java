@@ -148,4 +148,22 @@ public class ThanhToanController {
 
         response.sendRedirect("http://localhost:5173/payment-error");
     }
+
+    @PostMapping("/vnpay/luu-db")
+    public ResponseEntity<?> luuThanhToanVnPay(
+            @RequestParam int maLichHen,
+            @RequestParam double soTien
+    ) {
+        try {
+            // Lưu thanh toán với phương thức VNPAY
+            ThanhToan tt = thanhToanService.taoThanhToan(maLichHen, soTien, "VNPAY");
+
+            // Cập nhật trạng thái ngay thành DA_THANH_TOAN
+            ThanhToan updatedTt = thanhToanService.capNhatTrangThai(tt.getMaThanhToan(), "DA_THANH_TOAN");
+
+            return ResponseEntity.ok(ThanhToanMapper.toDTO(updatedTt));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("Lỗi lưu DB: " + e.getMessage());
+        }
+    }
 }

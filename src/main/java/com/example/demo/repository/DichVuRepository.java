@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface DichVuRepository extends JpaRepository<DichVu, Integer> {
     Optional<DichVu> findByTenDichVu(String tenDichVu);
+
+    Optional<DichVu> findById(Integer maDichVu);
 }

@@ -41,6 +41,7 @@ public class LichHenService {
 
     @Transactional
     public LichHen datLichHen(
+            int maDichVu,
             String hoTen,
             Date ngaySinh,
             String gioiTinh,

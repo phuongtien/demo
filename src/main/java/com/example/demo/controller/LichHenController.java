@@ -62,20 +62,22 @@ public class LichHenController {
     // Đặt lịch — không cần ADMIN, chỉ cần đăng nhập
     @PostMapping("/datLich")
     public ResponseEntity<?> datLich(
+            @RequestParam int maDichVu,
             @RequestParam String hoTen,
             @RequestParam @DateTimeFormat(pattern = "dd/MM/yyyy") Date ngaySinh,
             @RequestParam String gioiTinh,
             @RequestParam String soDienThoai,
             @RequestParam String diaChi,
             @RequestParam(required = false, defaultValue = "Bản thân") String quanHeVoiTaiKhoan,
+            @RequestParam int maTaiKhoan,
             @RequestParam int maKhungGio,
-            @RequestParam int maDichVu,
             @RequestParam(required = false) String ghiChu
     ) {
         try {
+            // Truyền vào Service đúng thứ tự các tham số
             LichHen saved = lichHenService.datLichHen(
-                    hoTen, ngaySinh, gioiTinh, soDienThoai, diaChi,
-                    quanHeVoiTaiKhoan, maKhungGio, maDichVu, ghiChu
+                    maDichVu, hoTen, ngaySinh, gioiTinh, soDienThoai, diaChi,
+                    quanHeVoiTaiKhoan, maTaiKhoan, maKhungGio, ghiChu
             );
             return ResponseEntity.ok(LichHenMapper.toDTO(saved));
         } catch (RuntimeException e) {

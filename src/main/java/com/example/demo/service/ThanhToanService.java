@@ -143,10 +143,14 @@ public class ThanhToanService {
             String fieldValue = vnp_Params.get(fieldName);
             if (fieldValue != null && !fieldValue.isEmpty()) {
                 hashData.append(fieldName).append('=')
-                        .append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
-                query.append(URLEncoder.encode(fieldName, StandardCharsets.US_ASCII))
+                        // 1. SỬA US_ASCII THÀNH UTF_8 Ở ĐÂY 👇
+                        .append(URLEncoder.encode(fieldValue, StandardCharsets.UTF_8));
+
+                // 2. SỬA US_ASCII THÀNH UTF_8 Ở ĐÂY 👇
+                query.append(URLEncoder.encode(fieldName, StandardCharsets.UTF_8))
                         .append('=')
-                        .append(URLEncoder.encode(fieldValue, StandardCharsets.US_ASCII));
+                        // 3. SỬA US_ASCII THÀNH UTF_8 Ở ĐÂY 👇
+                        .append(URLEncoder.encode(fieldValue, StandardCharsets.UTF_8));
                 if (itr.hasNext()) {
                     query.append('&');
                     hashData.append('&');
