@@ -121,16 +121,23 @@ public class LichHenController {
     @PutMapping("/capNhatTrangThai/{maLichHen}")
     public ResponseEntity<?> capNhatTrangThai(
             @PathVariable int maLichHen,
-            @RequestParam String emailDangNhap,
-            @RequestParam String matKhauMaHoa,
+            @RequestParam int maTaiKhoan,
             @RequestParam String trangThai
     ) {
         try {
-            TaiKhoan taiKhoan = taiKhoanService.dangNhap(emailDangNhap, matKhauMaHoa);
-            if (!"ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro())) {
+            // Bổ sung .orElse(null) ở đây để bóc Optional ra nhé
+            TaiKhoan taiKhoan = taiKhoanService.getTaiKhoanById(maTaiKhoan).orElse(null);
+
+            // In ra console của Backend để cậu tự debug xem DB thực sự trả về chuỗi gì
+            System.out.println("ID Tài khoản gửi lên: " + maTaiKhoan);
+            System.out.println("Vai trò hiện tại trong DB: '" + (taiKhoan != null ? taiKhoan.getVaiTro() : "null") + "'");
+
+            // Bổ sung .trim() để cắt bỏ khoảng trắng thừa và .equalsIgnoreCase để không phân biệt hoa/thường
+            if (taiKhoan == null || taiKhoan.getVaiTro() == null || !"ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro().trim())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body("Chỉ ADMIN mới được cập nhật trạng thái");
             }
+
             LichHen updated = lichHenService.capNhatTrangThai(maLichHen, trangThai);
             return ResponseEntity.ok(LichHenMapper.toDTO(updated));
         } catch (RuntimeException e) {
