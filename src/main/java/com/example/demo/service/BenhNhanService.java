@@ -32,7 +32,7 @@ public class BenhNhanService {
     }
 
     // Thêm hàm gộp này vào:
-    @Transactional // Rất quan trọng: Đảm bảo lỗi ở đâu cũng rollback lại, không bị rác data
+    @Transactional
     public BenhNhan createBenhNhanVaTaiKhoanTudong(
             String emailDangNhap,
             String hoTen,
@@ -42,8 +42,7 @@ public class BenhNhanService {
             String diaChi,
             String quanHeVoiTaiKhoan
     ) {
-        // --- BƯỚC 1: TỰ ĐỘNG TẠO TÀI KHOẢN VÀ THÔNG TIN TÀI KHOẢN ---
-        // (Kiểm tra email đã tồn tại chưa để tránh lỗi)
+
         if (taiKhoanRepository.findByEmailDangNhap(emailDangNhap).isPresent()) {
             throw new RuntimeException("Email đăng nhập đã tồn tại!");
         }
@@ -62,7 +61,6 @@ public class BenhNhanService {
         // Lưu tài khoản trước để lấy ID
         TaiKhoan savedTaiKhoan = taiKhoanRepository.save(taiKhoanMoi);
 
-        // --- BƯỚC 2: TẠO BỆNH NHÂN LẤY ID TÀI KHOẢN VỪA TẠO ---
         BenhNhan benhNhan = new BenhNhan();
         benhNhan.setHoTen(hoTen);
         benhNhan.setNgaySinh(ngaySinh);
@@ -71,7 +69,6 @@ public class BenhNhanService {
         benhNhan.setDiaChi(diaChi != null && !diaChi.trim().isEmpty() ? diaChi : "Chưa cập nhật");
         benhNhan.setQuanHeVoiTaiKhoan(quanHeVoiTaiKhoan != null && !quanHeVoiTaiKhoan.trim().isEmpty() ? quanHeVoiTaiKhoan : "Bản thân");
 
-        // Nhét tài khoản vừa sinh ra vào Bệnh nhân
         benhNhan.setTaiKhoan(savedTaiKhoan);
 
         return benhNhanRepository.save(benhNhan);

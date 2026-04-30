@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.TaiKhoan;
+import com.example.demo.entity.ThongTinTaiKhoan;
 import com.example.demo.repository.TaiKhoanRepository;
 import com.example.demo.repository.ThongTinTaiKhoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,4 +108,25 @@ public class TaiKhoanService {
 
         return taiKhoan;
     }
+
+    public TaiKhoan createTaiKhoanBacSi(String email, String hoTen, String soDienThoai) {
+        if (taiKhoanRepository.findByEmailDangNhap(email).isPresent()) {
+            throw new RuntimeException("Email bác sĩ đã tồn tại!");
+        }
+
+        TaiKhoan tk = new TaiKhoan();
+        tk.setEmailDangNhap(email);
+        tk.setMatKhauMaHoa("123456789"); // Mật khẩu mặc định
+        tk.setVaiTro("doctor");
+
+        ThongTinTaiKhoan thongTin = new ThongTinTaiKhoan();
+        thongTin.setHoTen(hoTen);
+        thongTin.setSoDienThoai(soDienThoai);
+        thongTin.setTaiKhoan(tk);
+
+        tk.setThongTin(thongTin);
+        return taiKhoanRepository.save(tk);
+    }
+
+
 }

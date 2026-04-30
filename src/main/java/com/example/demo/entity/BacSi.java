@@ -1,7 +1,11 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "BacSi")
 public class BacSi {
@@ -19,45 +23,7 @@ public class BacSi {
     @JoinColumn(name = "maChuyenKhoa", referencedColumnName = "maChuyenKhoa")
     private ChuyenKhoa chuyenKhoa;
 
-    public BacSi() {
-    }
-
-    public BacSi(int maBacSi, String hoTen, String soDienThoai, ChuyenKhoa chuyenKhoa) {
-        this.maBacSi = maBacSi;
-        this.hoTen = hoTen;
-        this.soDienThoai = soDienThoai;
-        this.chuyenKhoa = chuyenKhoa;
-    }
-
-    public int getMaBacSi() {
-        return maBacSi;
-    }
-
-    public void setMaBacSi(int maBacSi) {
-        this.maBacSi = maBacSi;
-    }
-
-    public String getHoTen() {
-        return hoTen;
-    }
-
-    public void setHoTen(String hoTen) {
-        this.hoTen = hoTen;
-    }
-
-    public String getSoDienThoai() {
-        return soDienThoai;
-    }
-
-    public void setSoDienThoai(String soDienThoai) {
-        this.soDienThoai = soDienThoai;
-    }
-
-    public ChuyenKhoa getChuyenKhoa() {
-        return chuyenKhoa;
-    }
-
-    public void setChuyenKhoa(ChuyenKhoa chuyenKhoa) {
-        this.chuyenKhoa = chuyenKhoa;
-    }
+    @OneToOne
+    @JoinColumn(name = "maTaiKhoan")
+    private TaiKhoan taiKhoan;
 }

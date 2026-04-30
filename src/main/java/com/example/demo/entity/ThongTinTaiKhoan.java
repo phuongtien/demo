@@ -17,6 +17,7 @@ public class ThongTinTaiKhoan {
     @Column(name = "soDienThoai")
     private String soDienThoai;
 
+
     @OneToOne
     @JoinColumn(name = "maTaiKhoan", referencedColumnName = "maTaiKhoan")
     @JsonIgnore

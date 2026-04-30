@@ -15,6 +15,11 @@ public class BacSiMapper {
             dto.setTenChuyenKhoa(bacSi.getChuyenKhoa().getTenChuyenKhoa());
         }
 
+        if (bacSi.getTaiKhoan() != null) {
+            dto.setMaTaiKhoan(bacSi.getTaiKhoan().getMaTaiKhoan());
+            dto.setEmailDangNhap(bacSi.getTaiKhoan().getEmailDangNhap());
+        }
+
         return dto;
     }
 }

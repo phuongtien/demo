@@ -6,9 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class LichHenService {
@@ -18,6 +21,7 @@ public class LichHenService {
     @Autowired private KhungGioKhamRepository khungGioKhamRepository;
     @Autowired private DichVuRepository dichVuRepository;
     @Autowired private TaiKhoanRepository taiKhoanRepository;
+    @Autowired private PhanCongBacSiRepository phanCongBacSiRepository;
 
     public List<LichHen> getAll() {
         return lichHenRepository.findAll();
@@ -34,7 +38,9 @@ public class LichHenService {
     public List<LichHen> getByKhungGio(int maKhungGio) {
         return lichHenRepository.findByKhungGioKham_MaKhungGio(maKhungGio);
     }
-
+    public List<LichHen> getByTaiKhoan(int maTaiKhoan) {
+        return lichHenRepository.findByBenhNhan_TaiKhoan_MaTaiKhoan(maTaiKhoan);
+    }
     public List<LichHen> getByTrangThai(String trangThai) {
         return lichHenRepository.findByTrangThai(trangThai);
     }
@@ -148,5 +154,37 @@ public class LichHenService {
         }
 
         lichHenRepository.delete(lh);
+    }
+
+    public List<LichHen> getByBacSi(int maBacSi) {
+        // Lấy danh sách maKhungGio từ PhanCong
+        List<Integer> khungGioIds = phanCongBacSiRepository
+                .findByBacSi_MaBacSi(maBacSi)
+                .stream()
+                .map(pc -> pc.getKhungGioKham().getMaKhungGio())
+                .collect(Collectors.toList());
+
+        return lichHenRepository.findByKhungGioKham_MaKhungGioIn(khungGioIds);
+    }
+
+    public List<KhungGioKham> getScheduleBetween(int maBacSi, Date start, Date end) {
+
+        LocalDate startDate = start.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        LocalDate endDate = end.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        return phanCongBacSiRepository
+                .findByBacSi_MaBacSi(maBacSi)
+                .stream()
+                .map(pc -> pc.getKhungGioKham())
+                .filter(khung -> {
+                    LocalDate ngay = khung.getNgayKham();
+                    return !ngay.isBefore(startDate) && !ngay.isAfter(endDate);
+                })
+                .collect(Collectors.toList());
     }
 }

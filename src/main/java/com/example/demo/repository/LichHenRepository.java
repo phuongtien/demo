@@ -11,4 +11,8 @@ public interface LichHenRepository extends JpaRepository<LichHen, Integer> {
     List<LichHen> findByBenhNhan_MaBenhNhan(int maBenhNhan);
     List<LichHen> findByKhungGioKham_MaKhungGio(int maKhungGio);
     List<LichHen> findByTrangThai(String trangThai);
+    List<LichHen> findByBenhNhan_TaiKhoan_MaTaiKhoan(int maTaiKhoan);
+    List<LichHen> findByKhungGioKham_MaKhungGioIn(List<Integer> maKhungGioList);
+
+
 }

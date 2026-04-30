@@ -25,6 +25,8 @@ public class LichHen {
     @Column(nullable = false)
     private String trangThai = "CHO_XACNHAN";
 
+
+
     @Column
     private String ghiChu;
 

@@ -2,8 +2,10 @@ package com.example.demo.service;
 
 import com.example.demo.entity.BacSi;
 import com.example.demo.entity.ChuyenKhoa;
+import com.example.demo.entity.TaiKhoan;
 import com.example.demo.repository.BacSiRepository;
 import com.example.demo.repository.ChuyenKhoaRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,9 @@ public class BacSiService {
 
     @Autowired
     private ChuyenKhoaRepository chuyenKhoaRepository;
+
+    @Autowired
+    private TaiKhoanService taiKhoanService;
 
     // Lấy tất cả
     public List<BacSi> getAll() {
@@ -92,4 +97,36 @@ public class BacSiService {
         }
         bacSiRepository.deleteById(maBacSi);
     }
+
+    @Transactional
+    public BacSi create(String hoTen, String soDienThoai, int maChuyenKhoa,
+                        String emailBacSi) {
+
+        if (bacSiRepository.existsBySoDienThoai(soDienThoai))
+            throw new RuntimeException("Số điện thoại bác sĩ đã tồn tại");
+
+        // Bước A: Tạo tài khoản kèm thông tin cá nhân (truyền thêm ngày sinh, giới tính)
+        TaiKhoan tkBacSi = taiKhoanService.createTaiKhoanBacSi(emailBacSi, hoTen, soDienThoai);
+
+        // Bước B: Tạo hồ sơ bác sĩ
+        ChuyenKhoa chuyenKhoa = chuyenKhoaRepository.findById(maChuyenKhoa)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy chuyên khoa"));
+
+        BacSi bacSi = new BacSi();
+        bacSi.setHoTen(hoTen);
+        bacSi.setSoDienThoai(soDienThoai);
+        bacSi.setChuyenKhoa(chuyenKhoa);
+
+        // Bây giờ lệnh này sẽ KHÔNG còn lỗi nữa
+        bacSi.setTaiKhoan(tkBacSi);
+
+        return bacSiRepository.save(bacSi);
+    }
+
+    @Transactional
+    public BacSi getBacSiByTaiKhoan(int maTaiKhoan) {
+        return bacSiRepository.findByTaiKhoan_MaTaiKhoan(maTaiKhoan)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ"));
+    }
+
 }

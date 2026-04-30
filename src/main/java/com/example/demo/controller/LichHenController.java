@@ -1,9 +1,12 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.LichHenDTO;
+import com.example.demo.entity.BacSi;
+import com.example.demo.entity.KhungGioKham;
 import com.example.demo.entity.LichHen;
 import com.example.demo.entity.TaiKhoan;
 import com.example.demo.mapper.LichHenMapper;
+import com.example.demo.service.BacSiService;
 import com.example.demo.service.LichHenService;
 import com.example.demo.service.TaiKhoanService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -23,7 +27,7 @@ public class LichHenController {
 
     @Autowired private LichHenService lichHenService;
     @Autowired private TaiKhoanService taiKhoanService;
-
+    @Autowired private BacSiService bacSiService;
     @GetMapping("/danhSach")
     public ResponseEntity<?> getAll() {
         List<LichHenDTO> list = lichHenService.getAll()
@@ -43,6 +47,36 @@ public class LichHenController {
         List<LichHenDTO> list = lichHenService.getByBenhNhan(maBenhNhan)
                 .stream().map(LichHenMapper::toDTO).collect(Collectors.toList());
         return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/theoBacSi/{maBacSi}")
+    public ResponseEntity<?> getByBacSi(@PathVariable int maBacSi) {
+        List<LichHenDTO> list = lichHenService.getByBacSi(maBacSi)
+                .stream().map(LichHenMapper::toDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(list);
+    }
+    @GetMapping("/theoTaiKhoan/{maTaiKhoan}")
+    public ResponseEntity<?> getByTaiKhoan(@PathVariable int maTaiKhoan) {
+        List<LichHenDTO> list = lichHenService.getByTaiKhoan(maTaiKhoan)
+                .stream().map(LichHenMapper::toDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(list);
+    }
+
+
+
+    @GetMapping("/between/theoTaiKhoan/{maTaiKhoan}")
+    public ResponseEntity<?> getScheduleBetweenByTaiKhoan(
+            @PathVariable int maTaiKhoan,
+            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") Date start,
+            @RequestParam @DateTimeFormat(pattern = "dd-MM-yyyy") Date end
+    ) {
+        try {
+            BacSi bacSi = bacSiService.getBacSiByTaiKhoan(maTaiKhoan);
+            List<KhungGioKham> result = lichHenService.getScheduleBetween(bacSi.getMaBacSi(), start, end);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/theoKhungGio/{maKhungGio}")
