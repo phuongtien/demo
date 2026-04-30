@@ -62,8 +62,6 @@ public class LichHenController {
         return ResponseEntity.ok(list);
     }
 
-
-
     @GetMapping("/between/theoTaiKhoan/{maTaiKhoan}")
     public ResponseEntity<?> getScheduleBetweenByTaiKhoan(
             @PathVariable int maTaiKhoan,
