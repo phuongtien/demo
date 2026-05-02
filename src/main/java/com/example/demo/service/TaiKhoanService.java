@@ -56,7 +56,7 @@ public class TaiKhoanService {
             throw new RuntimeException("Không thể tạo tài khoản với vai trò ADMIN!");
         }
 
-        taiKhoan.setVaiTro("NGUOI_DUNG");
+        taiKhoan.setVaiTro("patient");
 
         // Liên kết thông tin
         taiKhoan.getThongTin().setTaiKhoan(taiKhoan);

@@ -7,10 +7,12 @@ import com.example.demo.mapper.PhanCongBacSiMapper;
 import com.example.demo.service.PhanCongBacSiService;
 import com.example.demo.service.TaiKhoanService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -114,6 +116,25 @@ public class PhanCongBacSiController {
             }
             phanCongService.delete(maPhanCong);
             return ResponseEntity.ok("Xóa phân công thành công");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/themThongMinh")
+    public ResponseEntity<?> createThongMinh(
+            @RequestParam int maTaiKhoan,
+            @RequestParam int maBacSi,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate ngayKham,
+            @RequestParam int ca
+    ) {
+        try {
+            TaiKhoan taiKhoan = taiKhoanService.getTaiKhoanById(maTaiKhoan).orElse(null);
+            if (taiKhoan == null || !"ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro().trim())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Chỉ ADMIN mới được phân công");
+            }
+            PhanCongBacSi saved = phanCongService.phanCongThongMinh(maBacSi, ngayKham, ca);
+            return ResponseEntity.ok(PhanCongBacSiMapper.toDTO(saved));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

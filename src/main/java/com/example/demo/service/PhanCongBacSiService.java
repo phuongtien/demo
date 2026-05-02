@@ -6,9 +6,12 @@ import com.example.demo.entity.PhanCongBacSi;
 import com.example.demo.repository.BacSiRepository;
 import com.example.demo.repository.KhungGioKhamRepository;
 import com.example.demo.repository.PhanCongBacSiRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -102,5 +105,50 @@ public class PhanCongBacSiService {
             throw new RuntimeException("Không tìm thấy phân công");
         }
         phanCongRepository.deleteById(maPhanCong);
+    }
+
+    //Riêng cái thằng viết cái api này, t nhận xét luôn
+    //API mỏng như tờ giấy vậy
+    //Ngu thì vl
+
+    @Transactional
+    public PhanCongBacSi phanCongThongMinh(int maBacSi, LocalDate ngayKham, int ca) {
+        LocalTime gioBatDau;
+        LocalTime gioKetThuc;
+
+        if (ca == 1) {
+            gioBatDau = LocalTime.of(6, 0);
+            gioKetThuc = LocalTime.of(14, 0);
+        } else if (ca == 2) {
+            gioBatDau = LocalTime.of(14, 0);
+            gioKetThuc = LocalTime.of(22, 0);
+        } else {
+            gioBatDau = LocalTime.of(22, 0);
+            gioKetThuc = LocalTime.of(6, 0);
+        }
+
+        KhungGioKham khung = khungGioKhamRepository
+                .findByNgayKhamAndGioBatDauAndGioKetThuc(ngayKham, gioBatDau, gioKetThuc)
+                .orElseGet(() -> {
+                    KhungGioKham newKhung = new KhungGioKham();
+                    newKhung.setNgayKham(ngayKham);
+                    newKhung.setGioBatDau(gioBatDau);
+                    newKhung.setGioKetThuc(gioKetThuc);
+                    newKhung.setSoLuongToiDa(50);
+                    newKhung.setSoLuongDaDat(0);
+                    return khungGioKhamRepository.save(newKhung);
+                });
+
+        BacSi bacSi = bacSiRepository.findById(maBacSi)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bác sĩ"));
+
+        if (phanCongRepository.existsByKhungGioKham_MaKhungGioAndBacSi_MaBacSi(khung.getMaKhungGio(), maBacSi)) {
+            throw new RuntimeException("Bác sĩ đã được phân công vào ca này rồi!");
+        }
+
+        PhanCongBacSi pc = new PhanCongBacSi();
+        pc.setKhungGioKham(khung);
+        pc.setBacSi(bacSi);
+        return phanCongRepository.save(pc);
     }
 }

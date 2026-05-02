@@ -18,13 +18,13 @@ public class KhungGioKham {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int maKhungGio;
-    @JsonFormat(pattern = "dd/MM/yyyy")
+    @Column(name = "ngayKham")
     private LocalDate ngayKham;
 
-    @JsonFormat(pattern = "HH:mm")
+    @Column(name = "gioBatDau")
     private LocalTime gioBatDau;
 
-    @JsonFormat(pattern = "HH:mm")
+    @Column(name = "gioKetThuc")
     private LocalTime gioKetThuc;
 
     private int soLuongToiDa;
