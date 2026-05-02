@@ -44,16 +44,15 @@ public class DichVuController {
 
     @PostMapping("/themDV")
     public ResponseEntity<?> createDichVu(
-            @RequestParam String emailDangNhap,
-            @RequestParam String matKhauMaHoa,
+            @RequestParam int maTaiKhoan, // Dùng maTaiKhoan
             @RequestParam String tenDichVu,
             @RequestParam BigDecimal phiDichVu,
             @RequestParam String tenChuyenKhoa
     ) {
         try {
-            TaiKhoan taiKhoan = taiKhoanService.dangNhap(emailDangNhap, matKhauMaHoa);
+            TaiKhoan taiKhoan = taiKhoanService.getTaiKhoanById(maTaiKhoan).orElse(null);
 
-            if (!"ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro())) {
+            if (taiKhoan == null || !"ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro().trim())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body("Chỉ ADMIN mới được thêm Dịch vụ");
             }
@@ -66,12 +65,12 @@ public class DichVuController {
     }
 
     @DeleteMapping("/xoa/{id}")
-    public ResponseEntity<?> xoaDichVu(@PathVariable("id") int id,
-                                       @RequestParam String emailDangNhap,
-                                       @RequestParam String matKhauMaHoa) {
+    public ResponseEntity<?> xoaDichVu(
+            @PathVariable("id") int id,
+            @RequestParam int maTaiKhoan) {
         try {
-            TaiKhoan taiKhoan = taiKhoanService.dangNhap(emailDangNhap, matKhauMaHoa);
-            if ("ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro())) {
+            TaiKhoan taiKhoan = taiKhoanService.getTaiKhoanById(maTaiKhoan).orElse(null);
+            if (taiKhoan != null && "ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro().trim())) {
                 dichVuService.deleteDichVu(id);
                 return ResponseEntity.ok("Đã xóa dịch vụ có id = " + id);
             } else {
@@ -84,23 +83,22 @@ public class DichVuController {
     }
 
     @PutMapping("/sua/{id}")
-    public ResponseEntity<?> suaDichVu(@PathVariable int id,
-                                       @RequestParam String emailDangNhap,
-                                       @RequestParam String matKhauMaHoa,
-                                       @RequestParam(required = false) String tenDichVu,
-                                       @RequestParam(required = false) BigDecimal phiDichVu,
-                                       @RequestParam(required = false) String tenChuyenKhoa) {
+    public ResponseEntity<?> suaDichVu(
+            @PathVariable int id,
+            @RequestParam int maTaiKhoan,
+            @RequestParam(required = false) String tenDichVu,
+            @RequestParam(required = false) BigDecimal phiDichVu,
+            @RequestParam(required = false) String tenChuyenKhoa) {
         try {
-            TaiKhoan taiKhoan = taiKhoanService.dangNhap(emailDangNhap, matKhauMaHoa);
+            TaiKhoan taiKhoan = taiKhoanService.getTaiKhoanById(maTaiKhoan).orElse(null);
 
-            if ("ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro())) {
+            if (taiKhoan != null && "ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro().trim())) {
                 DichVu updated = dichVuService.updateDichVu(id, tenDichVu, phiDichVu, tenChuyenKhoa);
                 return ResponseEntity.ok(DichVuMapper.toDTO(updated));
             } else {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body("Không có quyền sửa dịch vụ");
             }
-
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

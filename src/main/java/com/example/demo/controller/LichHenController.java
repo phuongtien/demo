@@ -16,9 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -172,6 +170,63 @@ public class LichHenController {
             }
             lichHenService.xoaLichHen(maLichHen);
             return ResponseEntity.ok("Xóa lịch hẹn thành công");
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/dashboard/theoTaiKhoan/{maTaiKhoan}")
+    public ResponseEntity<?> getDoctorDashboard(@PathVariable int maTaiKhoan) {
+        try {
+            BacSi bacSi = bacSiService.getBacSiByTaiKhoan(maTaiKhoan);
+
+            List<LichHen> listLichHen = lichHenService.getByBacSi(bacSi.getMaBacSi());
+
+            int totalDone = 0;
+            int totalToday = 0;
+            Map<String, Integer> monthly = new HashMap<>();
+            Map<String, Integer> yearly = new HashMap<>();
+
+            LocalDate today = LocalDate.now();
+
+            for (LichHen lh : listLichHen) {
+                LocalDate ngayKham = lh.getKhungGioKham().getNgayKham();
+                String trangThai = lh.getTrangThai();
+
+                if ("DA_KHAM".equals(trangThai)) {
+                    totalDone++;
+                }
+
+                if (ngayKham.equals(today) && !"DA_HUY".equals(trangThai)) {
+                    totalToday++;
+                }
+
+                if ("DA_KHAM".equals(trangThai) || "DA_XACNHAN".equals(trangThai)) {
+                    // Thống kê theo năm
+                    String year = String.valueOf(ngayKham.getYear());
+                    yearly.put(year, yearly.getOrDefault(year, 0) + 1);
+
+                    if (ngayKham.getYear() == today.getYear()) {
+                        String month = String.valueOf(ngayKham.getMonthValue());
+                        monthly.put(month, monthly.getOrDefault(month, 0) + 1);
+                    }
+                }
+            }
+
+            Map<String, Object> charts = new HashMap<>();
+            charts.put("monthly", monthly);
+            charts.put("yearly", yearly);
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("total_patient_done", totalDone);
+            data.put("total_patient_today", totalToday);
+            data.put("charts", charts);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("data", data);
+
+            return ResponseEntity.ok(response);
+
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

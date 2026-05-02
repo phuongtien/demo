@@ -30,6 +30,10 @@ public class KhungGioKham {
     private int soLuongToiDa;
     private int soLuongDaDat;
 
+    @ManyToOne
+    @JoinColumn(name = "maBacSi")
+    private BacSi bacSi;
+
 
 
 }

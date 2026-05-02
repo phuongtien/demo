@@ -67,13 +67,15 @@ public class DichVuService {
 
         DichVu dichVu = dichVuRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy dịch !"));
-
+        //Con trai của bố bị ngu à, kiểm tra tên của thằng hiện tại khi mày chỉnh sửa ????
+        //Để bố sửa cho con trai xem và học nhé ...
+        //Chỉ kiểm tra trùng nếu tên mới khác với tên hiện tại của chính nó
         if (tenDichVu != null && !tenDichVu.isEmpty()) {
-
-            if (dichVuRepository.findByTenDichVu(tenDichVu).isPresent()) {
-                throw new RuntimeException("Tên dịch  đã tồn tại!");
+            if (!dichVu.getTenDichVu().equalsIgnoreCase(tenDichVu.trim())) {
+                if (dichVuRepository.findByTenDichVu(tenDichVu).isPresent()) {
+                    throw new RuntimeException("Tên dịch vụ đã tồn tại!");
+                }
             }
-
             dichVu.setTenDichVu(tenDichVu);
         }
 

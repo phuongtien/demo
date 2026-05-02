@@ -27,6 +27,12 @@ public class LichHenMapper {
         dto.setTrangThai(lh.getTrangThai());
         dto.setGhiChu(lh.getGhiChu());
 
+
+        if (lh.getBenhNhan() != null) {
+            dto.setBenhNhan(BenhNhanMapper.toDTO(lh.getBenhNhan()));
+        }
+
         return dto;
     }
+
 }

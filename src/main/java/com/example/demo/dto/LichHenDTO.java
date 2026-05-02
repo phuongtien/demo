@@ -27,4 +27,6 @@ public class LichHenDTO {
 
     private String tenBacSi;
 
+    private BenhNhanDTO benhNhan;
+
 }
