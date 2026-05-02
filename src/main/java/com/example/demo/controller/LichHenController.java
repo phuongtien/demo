@@ -125,12 +125,8 @@ public class LichHenController {
             @RequestParam String trangThai
     ) {
         try {
-            // Bổ sung .orElse(null) ở đây để bóc Optional ra nhé
             TaiKhoan taiKhoan = taiKhoanService.getTaiKhoanById(maTaiKhoan).orElse(null);
 
-            // In ra console của Backend để cậu tự debug xem DB thực sự trả về chuỗi gì
-            System.out.println("ID Tài khoản gửi lên: " + maTaiKhoan);
-            System.out.println("Vai trò hiện tại trong DB: '" + (taiKhoan != null ? taiKhoan.getVaiTro() : "null") + "'");
 
             // Bổ sung .trim() để cắt bỏ khoảng trắng thừa và .equalsIgnoreCase để không phân biệt hoa/thường
             if (taiKhoan == null || taiKhoan.getVaiTro() == null || !"ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro().trim())) {

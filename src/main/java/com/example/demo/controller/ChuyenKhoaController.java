@@ -44,15 +44,14 @@ public class ChuyenKhoaController {
 
     @PostMapping("/themCK")
     public ResponseEntity<?> createChuyenkhoa(
-            @RequestParam String emailDangNhap,
-            @RequestParam String matKhauMaHoa,
+            @RequestParam int maTaiKhoan, // Đổi sang maTaiKhoan
             @RequestParam String tenChuyenKhoa,
             @RequestParam String moTa
     ) {
         try {
-            TaiKhoan taiKhoan = taiKhoanService.dangNhap(emailDangNhap, matKhauMaHoa);
+            TaiKhoan taiKhoan = taiKhoanService.getTaiKhoanById(maTaiKhoan).orElse(null);
 
-            if (!"ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro())) {
+            if (taiKhoan == null || taiKhoan.getVaiTro() == null || !"ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro().trim())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body("Chỉ ADMIN mới được thêm chuyên khoa");
             }
@@ -69,12 +68,14 @@ public class ChuyenKhoaController {
     }
 
     @DeleteMapping("/xoa/{id}")
-    public ResponseEntity<?> xoaChuyenKhoa(@PathVariable("id") int id,
-                                           @RequestParam String emailDangNhap,
-                                           @RequestParam String matKhauMaHoa) {
+    public ResponseEntity<?> xoaChuyenKhoa(
+            @PathVariable("id") int id,
+            @RequestParam int maTaiKhoan // Đổi sang maTaiKhoan
+    ) {
         try {
-            TaiKhoan taiKhoan = taiKhoanService.dangNhap(emailDangNhap, matKhauMaHoa);
-            if ("ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro())) {
+            TaiKhoan taiKhoan = taiKhoanService.getTaiKhoanById(maTaiKhoan).orElse(null);
+
+            if (taiKhoan != null && taiKhoan.getVaiTro() != null && "ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro().trim())) {
                 chuyenKhoaService.deleteChuyenKhoa(id);
                 return ResponseEntity.ok("Đã xóa chuyên khoa có id = " + id);
             } else {
@@ -87,18 +88,21 @@ public class ChuyenKhoaController {
     }
 
     @PutMapping("/sua/{id}")
-    public ResponseEntity<?> suaChuyenKhoa(@PathVariable int id,
-                                           @RequestParam String emailDangNhap,
-                                           @RequestParam String matKhauMaHoa,
-                                           @RequestParam(required = false) String tenChuyenKhoa,
-                                           @RequestParam(required = false) String moTa) {
+    public ResponseEntity<?> suaChuyenKhoa(
+            @PathVariable int id,
+            @RequestParam int maTaiKhoan, // Đổi sang maTaiKhoan
+            @RequestParam(required = false) String tenChuyenKhoa,
+            @RequestParam(required = false) String moTa
+    ) {
         try {
-            TaiKhoan taiKhoan = taiKhoanService.dangNhap(emailDangNhap, matKhauMaHoa);
-            if ("ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro())) {
+            TaiKhoan taiKhoan = taiKhoanService.getTaiKhoanById(maTaiKhoan).orElse(null);
+
+            if (taiKhoan != null && taiKhoan.getVaiTro() != null && "ADMIN".equalsIgnoreCase(taiKhoan.getVaiTro().trim())) {
                 ChuyenKhoa updated = chuyenKhoaService.updateChuyenKhoa(id, tenChuyenKhoa, moTa);
                 return ResponseEntity.ok(ChuyenKhoaMapper.toDTO(updated));
             } else {
-                return ResponseEntity.ok("Không có quyền sửa");
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body("Bạn không có quyền sửa chuyên khoa!");
             }
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
